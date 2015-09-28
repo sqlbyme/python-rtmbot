@@ -61,8 +61,14 @@ class RtmBot(object):
                         time.sleep(.1)
                         limiter = False
                     message = output[1].encode('ascii','ignore')
+                    if len(output) > 2 and output[2].startswith("U"):
+                        user_name = self.users_info(output[2])
+                        message = output[1] % user_name
                     channel.send_message("{}".format(message))
                     limiter = True
+    def users_info(self, user):
+        self.user_name = json.loads(self.slack_client.api_call("users.info", user=user))
+        return(self.user_name['user']['name'])
     def crons(self):
         for plugin in self.bot_plugins:
             plugin.do_jobs()
